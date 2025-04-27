@@ -33,7 +33,12 @@ func (r *PvzRepository) GetAllPVZs(ctx context.Context) ([]dto.PVZ, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(rows)
 
 	var pvzs []dto.PVZ
 	for rows.Next() {
