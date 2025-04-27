@@ -19,6 +19,33 @@ type PvzRepository struct {
 	*BaseRepository
 }
 
+func (r *PvzRepository) GetAllPVZs(ctx context.Context) ([]dto.PVZ, error) {
+	query, _, err := squirrel.Select("pvz_id", "city", "registration_date").
+		From("pvz_service.pvz").
+		PlaceholderFormat(squirrel.Dollar).
+		ToSql()
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to build query: %w", err)
+	}
+
+	rows, err := r.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var pvzs []dto.PVZ
+	for rows.Next() {
+		var p dto.PVZ
+		if err := rows.Scan(&p.Id, &p.City, &p.RegistrationDate); err != nil {
+			return nil, err
+		}
+		pvzs = append(pvzs, p)
+	}
+	return pvzs, nil
+}
+
 func NewPvzRepository(db *sql.DB) *PvzRepository {
 	return &PvzRepository{BaseRepository: NewBaseRepository(db)}
 }

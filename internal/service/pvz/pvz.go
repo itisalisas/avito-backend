@@ -71,3 +71,7 @@ func (s *Service) GetPvzList(ctx context.Context, startTime *time.Time, endTime 
 	}
 	return pvzList, nil
 }
+
+func (s *Service) GetAllPVZ(ctx context.Context) ([]dto.PVZ, error) {
+	return s.pvzRepo.GetAllPVZs(ctx)
+}

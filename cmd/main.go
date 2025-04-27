@@ -1,15 +1,16 @@
 package main
 
 import (
+	my_grpc "github.com/itisalisas/avito-backend/internal/transport/grpc"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"log"
+	"net"
 	"net/http"
 	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/joho/godotenv"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-
 	"github.com/itisalisas/avito-backend/internal/generated/dto"
 	"github.com/itisalisas/avito-backend/internal/handlers"
 	middleware2 "github.com/itisalisas/avito-backend/internal/middleware"
@@ -20,6 +21,8 @@ import (
 	"github.com/itisalisas/avito-backend/internal/storage"
 	"github.com/itisalisas/avito-backend/pkg/metrics"
 	middleware3 "github.com/itisalisas/avito-backend/pkg/middleware"
+	"github.com/joho/godotenv"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func initializeDatabase() (*storage.DB, error) {
@@ -98,6 +101,22 @@ func RunServer() error {
 	receptionHandler := handlers.NewReceptionHandler(receptionService)
 
 	m := setupRouter(authHandler, pvzHandler, productHandler, receptionHandler)
+
+	go func() {
+		lis, err := net.Listen("tcp", ":3000")
+		if err != nil {
+			log.Fatalf("failed to listen: %v", err)
+		}
+
+		s := grpc.NewServer()
+		my_grpc.RegisterGRPCServer(s, pvzService)
+		reflection.Register(s)
+
+		log.Printf("gRPC server listening at %v", lis.Addr())
+		if err := s.Serve(lis); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
+	}()
 
 	return http.ListenAndServe("localhost:"+os.Getenv("PORT"), m)
 }
