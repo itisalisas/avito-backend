@@ -7,6 +7,7 @@ import (
 	"github.com/itisalisas/avito-backend/internal/models"
 	"github.com/itisalisas/avito-backend/internal/storage"
 	openapi_types "github.com/oapi-codegen/runtime/types"
+	"log"
 )
 
 type ProductService struct {
@@ -24,7 +25,12 @@ func (s *ProductService) AddProduct(ctx context.Context, request dto.PostProduct
 	if err != nil {
 		return nil, err
 	}
-	defer tx.Rollback()
+	defer func(tx *sql.Tx) {
+		err := tx.Rollback()
+		if err != nil {
+			log.Fatalf("Error while rolling back transaction: %s", err)
+		}
+	}(tx)
 
 	if !isValidProductType(dto.ProductType(request.Type)) {
 		return nil, models.ErrIncorrectProductType
@@ -64,7 +70,12 @@ func (s *ProductService) DeleteLastProduct(ctx context.Context, pvzId openapi_ty
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func(tx *sql.Tx) {
+		err := tx.Rollback()
+		if err != nil {
+			log.Fatalf("Error while rolling back transaction: %s", err)
+		}
+	}(tx)
 
 	reception, err := s.receptionRepo.GetLastReceptionByPvzId(ctx, pvzId, tx)
 	if err != nil {

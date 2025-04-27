@@ -8,6 +8,7 @@ import (
 	"github.com/itisalisas/avito-backend/internal/models"
 	"github.com/itisalisas/avito-backend/internal/storage"
 	openapi_types "github.com/oapi-codegen/runtime/types"
+	"log"
 )
 
 type ReceptionService struct {
@@ -23,7 +24,12 @@ func (s *ReceptionService) AddReception(ctx context.Context, request dto.PostRec
 	if err != nil {
 		return nil, err
 	}
-	defer tx.Rollback()
+	defer func(tx *sql.Tx) {
+		err := tx.Rollback()
+		if err != nil {
+			log.Fatalf("Error while rolling back transaction: %s", err)
+		}
+	}(tx)
 
 	lastReception, err := s.receptionRepo.GetLastReceptionByPvzId(ctx, request.PvzId, tx)
 	if err != nil && !errors.Is(err, models.ErrReceptionNotFound) {
@@ -54,7 +60,12 @@ func (s *ReceptionService) CloseLastReception(ctx context.Context, pvzId openapi
 	if err != nil {
 		return nil, err
 	}
-	defer tx.Rollback()
+	defer func(tx *sql.Tx) {
+		err := tx.Rollback()
+		if err != nil {
+			log.Fatalf("Error while rolling back transaction: %s", err)
+		}
+	}(tx)
 
 	reception, err := s.receptionRepo.GetLastReceptionByPvzId(ctx, pvzId, tx)
 	if err != nil {

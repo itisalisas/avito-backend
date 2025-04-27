@@ -23,7 +23,12 @@ func RunServer() {
 	if err != nil {
 		panic(err)
 	}
-	defer db.Close()
+	defer func(db *storage.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Fatalf("failed to close database connection: %v", err)
+		}
+	}(db)
 	err = db.Migrate()
 	if err != nil {
 		panic(err)

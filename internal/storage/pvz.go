@@ -9,6 +9,7 @@ import (
 	"github.com/itisalisas/avito-backend/internal/generated/dto"
 	"github.com/itisalisas/avito-backend/internal/models"
 	openapi_types "github.com/oapi-codegen/runtime/types"
+	"log"
 	"time"
 )
 
@@ -77,7 +78,12 @@ func (r *PvzRepository) GetPvzList(ctx context.Context, startTime *time.Time, en
 	if err != nil {
 		return nil, fmt.Errorf("failed to query pvzs: %w", err)
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Fatalf("failed to close rows: %v", err)
+		}
+	}(rows)
 
 	pvzMap := make(map[uuid.UUID]*models.ExtendedPvz)
 	receptionMap := make(map[uuid.UUID]*models.ExtendedReception)

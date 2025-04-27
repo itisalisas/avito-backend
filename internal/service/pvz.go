@@ -6,6 +6,7 @@ import (
 	"github.com/itisalisas/avito-backend/internal/generated/dto"
 	"github.com/itisalisas/avito-backend/internal/models"
 	"github.com/itisalisas/avito-backend/internal/storage"
+	"log"
 	"time"
 )
 
@@ -22,7 +23,12 @@ func (s *PvzService) AddPvz(ctx context.Context, pvz *dto.PVZ) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func(tx *sql.Tx) {
+		err := tx.Rollback()
+		if err != nil {
+			log.Fatalf("Error while rolling back transaction: %s", err)
+		}
+	}(tx)
 
 	if !isValidCity(pvz.City) {
 		return models.ErrIncorrectCity
@@ -44,7 +50,12 @@ func (s *PvzService) GetPvzList(ctx context.Context, startTime *time.Time, endTi
 	if err != nil {
 		return nil, err
 	}
-	defer tx.Rollback()
+	defer func(tx *sql.Tx) {
+		err := tx.Rollback()
+		if err != nil {
+			log.Fatalf("Error while rolling back transaction: %s", err)
+		}
+	}(tx)
 
 	pvzList, err := s.pvzRepo.GetPvzList(ctx, startTime, endTime, page, limit, tx)
 	if err != nil {
