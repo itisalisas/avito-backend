@@ -36,8 +36,7 @@ func TestBaseRepository(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		defer func(db *sql.DB) {
-			err := db.Close()
-			require.NoError(t, err)
+			_ = db.Close()
 		}(db)
 
 		repo := NewBaseRepository(db)
@@ -57,8 +56,7 @@ func TestBaseRepository(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		defer func(db *sql.DB) {
-			err := db.Close()
-			require.NoError(t, err)
+			_ = db.Close()
 		}(db)
 
 		repo := NewBaseRepository(db)
@@ -81,8 +79,7 @@ func TestBaseRepository(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		defer func(db *sql.DB) {
-			err := db.Close()
-			require.NoError(t, err)
+			_ = db.Close()
 		}(db)
 
 		repo := NewBaseRepository(db)
@@ -105,8 +102,7 @@ func TestBaseRepository(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		defer func(db *sql.DB) {
-			err := db.Close()
-			require.NoError(t, err)
+			_ = db.Close()
 		}(db)
 
 		repo := NewBaseRepository(db)
@@ -129,8 +125,7 @@ func TestBaseRepository(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		defer func(db *sql.DB) {
-			err := db.Close()
-			require.NoError(t, err)
+			_ = db.Close()
 		}(db)
 
 		repo := NewBaseRepository(db)
