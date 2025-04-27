@@ -39,6 +39,9 @@ jobs:
       - name: Download dependencies
         run: go mod download
 
+      - name: Generate DTOs / code
+        run: make generate-dto
+
       - name: Install golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
