@@ -42,10 +42,5 @@ jobs:
       - name: Generate DTOs / code
         run: make generate-dto
 
-      - name: Install golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: v1.55.2
-
       - name: Run linter
         run: golangci-lint run -v ./...
