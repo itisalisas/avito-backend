@@ -17,18 +17,32 @@ jobs:
         with:
           go-version: 1.24
 
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Generate DTOs / code
+        run: make generate-dto
+
       - name: Run tests
-        run: go test -v -race ./...
+        run: go test -v -race -cover ./...
 
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.24
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Generate DTOs / code
+        run: make generate-dto
 
       - name: Install golangci-lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v7
         with:
-          version: v1.55.2
-
-      - name: Run linter
-        run: golangci-lint run -v ./...
+          version: v2.0

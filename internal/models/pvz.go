@@ -1,21 +1,15 @@
 package models
 
 import (
-	"time"
-
-	"github.com/google/uuid"
+	"github.com/itisalisas/avito-backend/internal/generated/dto"
 )
 
-/* TODO - uncomment when use
-var cities = map[string]interface{}{
-	"Москва":          true,
-	"Санкт-Петербург": true,
-	"Казань":          true,
+type ExtendedPvz struct {
+	PVZ        dto.PVZ             `json:"pvz"`
+	Receptions []ExtendedReception `json:"receptions"`
 }
-*/
 
-type Pvz struct {
-	ID               uuid.UUID `json:"id"`
-	RegistrationDate time.Time `json:"registrationDate"`
-	City             string    `json:"city"`
+type ExtendedReception struct {
+	Reception dto.Reception `json:"reception"`
+	Products  []dto.Product `json:"products"`
 }

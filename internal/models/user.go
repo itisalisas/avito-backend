@@ -1,17 +1,14 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	openapi_types "github.com/oapi-codegen/runtime/types"
 
-type Role string
-
-const (
-	Moderator Role = "moderator"
-	Employee  Role = "employee"
+	"github.com/itisalisas/avito-backend/internal/generated/dto"
 )
 
 type User struct {
-	ID       uuid.UUID `json:"id"`
-	Email    string    `json:"email"`
-	Role     Role      `json:"role"`
+	ID       openapi_types.UUID  `json:"id"`
+	Email    openapi_types.Email `json:"email"`
+	Role     dto.UserRole        `json:"role"`
 	Password string
 }
