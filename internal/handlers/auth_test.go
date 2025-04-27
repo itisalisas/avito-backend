@@ -93,7 +93,10 @@ func TestAuthHandler_Register(t *testing.T) {
 
 			h.Register(w, req)
 			resp := w.Result()
-			defer resp.Body.Close()
+			defer func(Body io.ReadCloser) {
+				err := Body.Close()
+				require.NoError(t, err)
+			}(resp.Body)
 
 			require.Equal(t, tt.wantStatus, resp.StatusCode)
 			var got map[string]interface{}
@@ -163,7 +166,10 @@ func TestAuthHandler_Login(t *testing.T) {
 
 			h.Login(w, req)
 			resp := w.Result()
-			defer resp.Body.Close()
+			defer func(Body io.ReadCloser) {
+				err := Body.Close()
+				require.NoError(t, err)
+			}(resp.Body)
 
 			require.Equal(t, tt.wantStatus, resp.StatusCode)
 			respBody, _ := io.ReadAll(resp.Body)
@@ -224,7 +230,10 @@ func TestAuthHandler_DummyLogin(t *testing.T) {
 
 			h.DummyLogin(w, req)
 			resp := w.Result()
-			defer resp.Body.Close()
+			defer func(Body io.ReadCloser) {
+				err := Body.Close()
+				require.NoError(t, err)
+			}(resp.Body)
 
 			require.Equal(t, tt.wantStatus, resp.StatusCode)
 			respBody, _ := io.ReadAll(resp.Body)

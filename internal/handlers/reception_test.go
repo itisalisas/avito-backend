@@ -89,7 +89,10 @@ func TestReceptionHandler_AddReception(t *testing.T) {
 
 			h.AddReception(w, req)
 			resp := w.Result()
-			defer resp.Body.Close()
+			defer func(Body io.ReadCloser) {
+				err := Body.Close()
+				require.NoError(t, err)
+			}(resp.Body)
 
 			respBody, _ := io.ReadAll(resp.Body)
 			require.Equal(t, tt.wantStatus, resp.StatusCode)
@@ -145,7 +148,10 @@ func TestReceptionHandler_CloseLastReception(t *testing.T) {
 
 			h.CloseLastReception(w, req)
 			resp := w.Result()
-			defer resp.Body.Close()
+			defer func(Body io.ReadCloser) {
+				err := Body.Close()
+				require.NoError(t, err)
+			}(resp.Body)
 
 			respBody, _ := io.ReadAll(resp.Body)
 			require.Equal(t, tt.wantStatus, resp.StatusCode)

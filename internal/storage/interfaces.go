@@ -29,6 +29,7 @@ type PvzRepositoryInterface interface {
 	TransactionStorage
 	CreatePvz(ctx context.Context, pvz *dto.PVZ) error
 	GetPvzList(ctx context.Context, startTime *time.Time, endTime *time.Time, page uint64, limit uint64) ([]*models.ExtendedPvz, error)
+	GetAllPVZs(ctx context.Context) ([]dto.PVZ, error)
 }
 
 type UserRepositoryInterface interface {

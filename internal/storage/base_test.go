@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"testing"
 
@@ -14,7 +15,10 @@ func TestBaseRepository(t *testing.T) {
 	t.Run("should begin transaction successfully", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		require.NoError(t, err)
-		defer db.Close()
+		defer func(db *sql.DB) {
+			err := db.Close()
+			require.NoError(t, err)
+		}(db)
 
 		repo := NewBaseRepository(db)
 
@@ -31,7 +35,9 @@ func TestBaseRepository(t *testing.T) {
 	t.Run("should return error when BeginTx fails", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		require.NoError(t, err)
-		defer db.Close()
+		defer func(db *sql.DB) {
+			_ = db.Close()
+		}(db)
 
 		repo := NewBaseRepository(db)
 
@@ -49,7 +55,9 @@ func TestBaseRepository(t *testing.T) {
 	t.Run("should commit transaction successfully", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		require.NoError(t, err)
-		defer db.Close()
+		defer func(db *sql.DB) {
+			_ = db.Close()
+		}(db)
 
 		repo := NewBaseRepository(db)
 
@@ -70,7 +78,9 @@ func TestBaseRepository(t *testing.T) {
 	t.Run("should return error when commit fails", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		require.NoError(t, err)
-		defer db.Close()
+		defer func(db *sql.DB) {
+			_ = db.Close()
+		}(db)
 
 		repo := NewBaseRepository(db)
 
@@ -91,7 +101,9 @@ func TestBaseRepository(t *testing.T) {
 	t.Run("should rollback transaction successfully", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		require.NoError(t, err)
-		defer db.Close()
+		defer func(db *sql.DB) {
+			_ = db.Close()
+		}(db)
 
 		repo := NewBaseRepository(db)
 
@@ -112,7 +124,9 @@ func TestBaseRepository(t *testing.T) {
 	t.Run("should return error when rollback fails", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		require.NoError(t, err)
-		defer db.Close()
+		defer func(db *sql.DB) {
+			_ = db.Close()
+		}(db)
 
 		repo := NewBaseRepository(db)
 

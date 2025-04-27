@@ -43,6 +43,7 @@ func TestProductService(t *testing.T) {
 			},
 			mockActions: func() {
 				mockReceptionRepo.EXPECT().BeginTx(gomock.Any(), gomock.Any()).Return(&sql.Tx{}, nil).Times(1)
+				mockProductRepo.EXPECT().BeginTx(gomock.Any(), gomock.Any()).Return(&sql.Tx{}, nil).Times(1)
 				mockReceptionRepo.EXPECT().GetLastReceptionByPvzId(gomock.Any(), gomock.Any()).Return(&dto.Reception{
 					Id:     &receptionId,
 					Status: dto.InProgress,
@@ -66,6 +67,7 @@ func TestProductService(t *testing.T) {
 			},
 			mockActions: func() {
 				mockReceptionRepo.EXPECT().BeginTx(gomock.Any(), gomock.Any()).Return(&sql.Tx{}, nil).Times(1)
+				mockProductRepo.EXPECT().BeginTx(gomock.Any(), gomock.Any()).Return(&sql.Tx{}, nil).Times(1)
 				mockReceptionRepo.EXPECT().GetLastReceptionByPvzId(gomock.Any(), gomock.Any()).Return(&dto.Reception{
 					Id:     &receptionId,
 					Status: dto.Close,
@@ -84,6 +86,7 @@ func TestProductService(t *testing.T) {
 			},
 			mockActions: func() {
 				mockReceptionRepo.EXPECT().BeginTx(gomock.Any(), gomock.Any()).Return(&sql.Tx{}, nil).Times(1)
+				mockProductRepo.EXPECT().BeginTx(gomock.Any(), gomock.Any()).Return(&sql.Tx{}, nil).Times(1)
 				mockReceptionRepo.EXPECT().Rollback().Return(nil).Times(1)
 			},
 			expectedErr:     models.ErrReceptionClosed,

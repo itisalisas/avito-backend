@@ -91,7 +91,10 @@ func TestProductHandler_AddProduct(t *testing.T) {
 
 			h.AddProduct(w, req)
 			resp := w.Result()
-			defer resp.Body.Close()
+			defer func(Body io.ReadCloser) {
+				err := Body.Close()
+				require.NoError(t, err)
+			}(resp.Body)
 
 			require.Equal(t, tt.wantStatus, resp.StatusCode)
 
@@ -150,7 +153,10 @@ func TestProductHandler_DeleteLastProduct(t *testing.T) {
 
 			h.DeleteLastProduct(w, req)
 			resp := w.Result()
-			defer resp.Body.Close()
+			defer func(Body io.ReadCloser) {
+				err := Body.Close()
+				require.NoError(t, err)
+			}(resp.Body)
 
 			require.Equal(t, tt.wantStatus, resp.StatusCode)
 
