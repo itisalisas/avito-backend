@@ -85,7 +85,6 @@ linters:
     - govet
     - ineffassign
     - staticcheck
-    - typecheck
     - unconvert
 
 issues:
