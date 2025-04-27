@@ -1,124 +1,81 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
+	"errors"
+	"github.com/itisalisas/avito-backend/internal/generated/dto"
 	"github.com/itisalisas/avito-backend/internal/models"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/itisalisas/avito-backend/internal/service"
+	"github.com/itisalisas/avito-backend/internal/utils"
 	"net/http"
-	"os"
-	"time"
 )
 
-func RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	var newUser struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		Role     string `json:"role"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&newUser); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
-		return
-	}
-
-	if newUser.Role != string(models.Employee) && newUser.Role != string(models.Moderator) {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	// TODO - save to DB with hashed password
-	_, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
-	if err != nil {
-		http.Error(w, "Failed to create user", http.StatusInternalServerError)
-		return
-	}
-
-	user := models.User{
-		ID:    uuid.New(),
-		Email: newUser.Email,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(models.User{
-		ID:    user.ID,
-		Email: user.Email,
-		Role:  user.Role,
-	})
+type AuthHandler struct {
+	authService *service.AuthService
 }
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	secretKey := os.Getenv("SECRET_KEY")
-	var credentials struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
-		return
-	}
-
-	// TODO - get user from DB
-	user := models.User{}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password)); err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
-		return
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"role":   string(user.Role),
-		"expire": time.Now().Add(time.Hour * 24).Unix(),
-	})
-
-	tokenString, err := token.SignedString([]byte(secretKey))
-	if err != nil {
-		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+func NewAuthHandler(db *sql.DB) *AuthHandler {
+	return &AuthHandler{
+		authService: service.NewAuthService(db),
 	}
 }
 
-func DummyLoginHandler(w http.ResponseWriter, r *http.Request) {
-	secretKey := os.Getenv("SECRET_KEY")
-	var request struct {
-		Role string `json:"role"`
-	}
+func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
+	var request dto.PostRegisterJSONRequestBody
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		utils.WriteResponse(w, utils.Error("Invalid request: "+err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	if request.Role != string(models.Employee) && request.Role != string(models.Moderator) {
-		w.WriteHeader(http.StatusBadRequest)
+	user, err := h.authService.Register(r.Context(), request)
+
+	switch {
+	case errors.Is(err, models.ErrIncorrectUserRole) || errors.Is(err, models.ErrEmailAlreadyInUse):
+		utils.WriteResponse(w, utils.Error(err.Error()), http.StatusBadRequest)
+	case err != nil:
+		utils.WriteResponse(w, utils.Error(err.Error()), http.StatusInternalServerError)
+	default:
+		utils.WriteResponse(w, user, http.StatusCreated)
+	}
+}
+
+func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
+	var request dto.PostLoginJSONRequestBody
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		utils.WriteResponse(w, utils.Error("Invalid request: "+err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"role":   request.Role,
-		"expire": time.Now().Add(time.Hour * 24).Unix(),
-	})
+	token, err := h.authService.Login(r.Context(), request)
+	switch {
+	case errors.Is(err, models.ErrUserNotFound) || errors.Is(err, models.ErrWrongPassword):
+		utils.WriteResponse(w, utils.Error(err.Error()), http.StatusUnauthorized)
+	case err != nil:
+		utils.WriteResponse(w, utils.Error(err.Error()), http.StatusInternalServerError)
+	default:
+		utils.WriteResponse(w, token, http.StatusOK)
+	}
+}
 
-	tokenString, err := token.SignedString([]byte(secretKey))
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+func (h *AuthHandler) DummyLogin(w http.ResponseWriter, r *http.Request) {
+	var request dto.PostDummyLoginJSONRequestBody
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		utils.WriteResponse(w, utils.Error("Invalid request: "+err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	token, err := h.authService.DummyLogin(request)
+
+	switch {
+	case errors.Is(err, models.ErrIncorrectUserRole):
+		utils.WriteResponse(w, utils.Error(err.Error()), http.StatusBadRequest)
+	case err != nil:
+		utils.WriteResponse(w, utils.Error(err.Error()), http.StatusInternalServerError)
+	default:
+		utils.WriteResponse(w, token, http.StatusOK)
 	}
 }
