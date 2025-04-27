@@ -20,6 +20,9 @@ jobs:
       - name: Download dependencies
         run: go mod download
 
+      - name: Generate DTOs / code
+        run: make generate-dto
+
       - name: Run tests
         run: go test -v -race -cover ./...
 
