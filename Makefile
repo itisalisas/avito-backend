@@ -8,3 +8,6 @@ generate-dto: install-codegen
 		-o internal/generated/dto.go \
 		api/swagger.yaml
 	go mod tidy
+
+generate-mocks:
+	mockgen -source=internal/storage/interfaces.go -destination=internal/generated/mocks/mock_interfaces.go -package=mocks

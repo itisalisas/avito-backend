@@ -15,11 +15,10 @@ import (
 	reflect "reflect"
 	time "time"
 
+	dto "github.com/itisalisas/avito-backend/internal/generated/dto"
+	models "github.com/itisalisas/avito-backend/internal/models"
 	types "github.com/oapi-codegen/runtime/types"
 	gomock "go.uber.org/mock/gomock"
-
-	"github.com/itisalisas/avito-backend/internal/generated/dto"
-	models "github.com/itisalisas/avito-backend/internal/models"
 )
 
 // MockProductRepositoryInterface is a mock of ProductRepositoryInterface interface.
@@ -308,6 +307,21 @@ func (m *MockPvzRepositoryInterface) CreatePvz(ctx context.Context, pvz *dto.PVZ
 func (mr *MockPvzRepositoryInterfaceMockRecorder) CreatePvz(ctx, pvz any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreatePvz", reflect.TypeOf((*MockPvzRepositoryInterface)(nil).CreatePvz), ctx, pvz)
+}
+
+// GetAllPVZs mocks base method.
+func (m *MockPvzRepositoryInterface) GetAllPVZs(ctx context.Context) ([]dto.PVZ, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllPVZs", ctx)
+	ret0, _ := ret[0].([]dto.PVZ)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllPVZs indicates an expected call of GetAllPVZs.
+func (mr *MockPvzRepositoryInterfaceMockRecorder) GetAllPVZs(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllPVZs", reflect.TypeOf((*MockPvzRepositoryInterface)(nil).GetAllPVZs), ctx)
 }
 
 // GetPvzList mocks base method.
