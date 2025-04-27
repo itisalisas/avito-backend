@@ -72,7 +72,10 @@ func TestCheckAuth(t *testing.T) {
 			mw.ServeHTTP(w, req)
 
 			resp := w.Result()
-			defer resp.Body.Close()
+			defer func(Body io.ReadCloser) {
+				err := Body.Close()
+				require.NoError(t, err)
+			}(resp.Body)
 
 			body, _ := io.ReadAll(resp.Body)
 			require.Equal(t, tt.wantStatus, resp.StatusCode)

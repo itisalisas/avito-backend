@@ -92,7 +92,10 @@ func TestPvzHandler_GetPvz(t *testing.T) {
 
 			h.GetPvz(w, req)
 			resp := w.Result()
-			defer resp.Body.Close()
+			defer func(Body io.ReadCloser) {
+				err := Body.Close()
+				require.NoError(t, err)
+			}(resp.Body)
 
 			require.Equal(t, tt.wantStatus, resp.StatusCode)
 
@@ -158,7 +161,10 @@ func TestPvzHandler_AddPvz(t *testing.T) {
 
 			h.AddPvz(w, req)
 			resp := w.Result()
-			defer resp.Body.Close()
+			defer func(Body io.ReadCloser) {
+				err := Body.Close()
+				require.NoError(t, err)
+			}(resp.Body)
 
 			require.Equal(t, tt.wantStatus, resp.StatusCode)
 

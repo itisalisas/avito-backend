@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/stretchr/testify/require"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -61,7 +63,11 @@ func TestCreatePvzAndReception(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		require.NoError(t, err)
+	}(resp.Body)
+
 	assert.Equal(t, http.StatusCreated, resp.StatusCode, "Expected status code to be 201")
 	var pvzInfo dto.PVZ
 	if json.NewDecoder(resp.Body).Decode(&pvzInfo) != nil {
@@ -79,7 +85,11 @@ func TestCreatePvzAndReception(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		require.NoError(t, err)
+	}(resp.Body)
+
 	assert.Equal(t, http.StatusCreated, resp.StatusCode, "Expected status code to be 201")
 	var receptionInfo dto.Reception
 	if json.NewDecoder(resp.Body).Decode(&receptionInfo) != nil {
@@ -99,7 +109,10 @@ func TestCreatePvzAndReception(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		defer resp.Body.Close()
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			require.NoError(t, err)
+		}(resp.Body)
 
 		assert.Equal(t, http.StatusCreated, resp.StatusCode, "Expected status code to be 201 for product")
 	}
@@ -114,7 +127,10 @@ func TestCreatePvzAndReception(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		require.NoError(t, err)
+	}(resp.Body)
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode, "Expected status code to be 200 for closing reception")
 }
