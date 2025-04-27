@@ -3,9 +3,10 @@ package grpc
 import (
 	"context"
 
-	"github.com/itisalisas/avito-backend/internal/service/pvz"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"github.com/itisalisas/avito-backend/internal/service/pvz"
 )
 
 type PVZServer struct {

@@ -18,12 +18,12 @@ import (
 )
 
 type stubAuthService struct {
-	RegisterFunc   func(ctx context.Context, request dto.PostRegisterJSONRequestBody) (*models.User, error)
+	RegisterFunc   func(ctx context.Context, request dto.PostRegisterJSONRequestBody) (*dto.User, error)
 	LoginFunc      func(ctx context.Context, request dto.PostLoginJSONRequestBody) (*dto.Token, error)
 	DummyLoginFunc func(request dto.PostDummyLoginJSONRequestBody) (*dto.Token, error)
 }
 
-func (s *stubAuthService) Register(ctx context.Context, request dto.PostRegisterJSONRequestBody) (*models.User, error) {
+func (s *stubAuthService) Register(ctx context.Context, request dto.PostRegisterJSONRequestBody) (*dto.User, error) {
 	return s.RegisterFunc(ctx, request)
 }
 func (s *stubAuthService) Login(ctx context.Context, request dto.PostLoginJSONRequestBody) (*dto.Token, error) {
@@ -38,7 +38,7 @@ func TestAuthHandler_Register(t *testing.T) {
 	tests := []struct {
 		name           string
 		body           []byte
-		serviceReturn  *models.User
+		serviceReturn  *dto.User
 		serviceErr     error
 		wantStatus     int
 		wantBodySubstr string
@@ -73,7 +73,7 @@ func TestAuthHandler_Register(t *testing.T) {
 		{
 			name:           "success -> 201",
 			body:           []byte(`{"email":"u@v.w","password":"p","role":"moderator"}`),
-			serviceReturn:  &models.User{ID: openapi_types.UUID{}, Email: "u@v.w", Role: dto.UserRole("moderator")},
+			serviceReturn:  &dto.User{Id: &openapi_types.UUID{}, Email: "u@v.w", Role: dto.UserRole("moderator")},
 			wantStatus:     http.StatusCreated,
 			wantBodySubstr: `"email":"u@v.w"`,
 		},
@@ -82,7 +82,7 @@ func TestAuthHandler_Register(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			stub := &stubAuthService{
-				RegisterFunc: func(ctx context.Context, req dto.PostRegisterJSONRequestBody) (*models.User, error) {
+				RegisterFunc: func(ctx context.Context, req dto.PostRegisterJSONRequestBody) (*dto.User, error) {
 					return tt.serviceReturn, tt.serviceErr
 				},
 			}

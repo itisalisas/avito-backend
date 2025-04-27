@@ -1,9 +1,6 @@
 package main
 
 import (
-	my_grpc "github.com/itisalisas/avito-backend/internal/transport/grpc"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
 	"net/http"
@@ -11,6 +8,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+
 	"github.com/itisalisas/avito-backend/internal/generated/dto"
 	"github.com/itisalisas/avito-backend/internal/handlers"
 	middleware2 "github.com/itisalisas/avito-backend/internal/middleware"
@@ -19,10 +20,9 @@ import (
 	"github.com/itisalisas/avito-backend/internal/service/pvz"
 	"github.com/itisalisas/avito-backend/internal/service/reception"
 	"github.com/itisalisas/avito-backend/internal/storage"
+	my_grpc "github.com/itisalisas/avito-backend/internal/transport/grpc"
 	"github.com/itisalisas/avito-backend/pkg/metrics"
 	middleware3 "github.com/itisalisas/avito-backend/pkg/middleware"
-	"github.com/joho/godotenv"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func initializeDatabase() (*storage.DB, error) {
@@ -122,9 +122,6 @@ func RunServer() error {
 }
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
 
 	startPrometheusServer()
 

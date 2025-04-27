@@ -137,7 +137,7 @@ func TestAuthService(t *testing.T) {
 
 			var err error
 			var token *dto.Token
-			var user *models.User
+			var user *dto.User
 
 			switch tt.method {
 			case "Register":

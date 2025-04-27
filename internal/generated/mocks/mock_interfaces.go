@@ -15,10 +15,11 @@ import (
 	reflect "reflect"
 	time "time"
 
-	dto "github.com/itisalisas/avito-backend/internal/generated/dto"
-	models "github.com/itisalisas/avito-backend/internal/models"
 	types "github.com/oapi-codegen/runtime/types"
 	gomock "go.uber.org/mock/gomock"
+
+	dto "github.com/itisalisas/avito-backend/internal/generated/dto"
+	models "github.com/itisalisas/avito-backend/internal/models"
 )
 
 // MockProductRepositoryInterface is a mock of ProductRepositoryInterface interface.

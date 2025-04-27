@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      - "POSTGRES_DB=${DB_NAME}"
+      - "POSTGRES_USER=${DB_USER}"
+      - "POSTGRES_PASSWORD=${DB_PASSWORD}"
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  pvz-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT}:8080"
+    depends_on:
+      - db
+    env_file:
+      - .env
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.tests
+    env_file:
+      - .env
+    depends_on:
+      - db-test
+
+  db-test:
+    image: postgres:15-alpine
+    environment:
+      - "POSTGRES_DB=${DB_NAME_TEST}"
+      - "POSTGRES_USER=${DB_USER_TEST}"
+      - "POSTGRES_PASSWORD=${DB_PASSWORD_TEST}"
+    ports:
+      - "${DB_PORT_TEST}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+
+volumes:
+  db_data:

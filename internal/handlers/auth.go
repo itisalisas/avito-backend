@@ -32,7 +32,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	user, err := h.authService.Register(r.Context(), request)
 
 	switch {
-	case errors.Is(err, models.ErrIncorrectUserRole) || errors.Is(err, models.ErrEmailAlreadyInUse):
+	case errors.Is(err, models.ErrIncorrectUserRole) || errors.Is(err, models.ErrEmailAlreadyInUse) || errors.Is(err, models.ErrEmptyEmailOrPassword):
 		utils.WriteResponse(w, utils.Error(err.Error()), http.StatusBadRequest)
 	case err != nil:
 		utils.WriteResponse(w, utils.Error(err.Error()), http.StatusInternalServerError)
@@ -51,7 +51,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	token, err := h.authService.Login(r.Context(), request)
 	switch {
-	case errors.Is(err, models.ErrUserNotFound) || errors.Is(err, models.ErrWrongPassword):
+	case errors.Is(err, models.ErrUserNotFound) || errors.Is(err, models.ErrWrongPassword) || errors.Is(err, models.ErrEmptyEmailOrPassword):
 		utils.WriteResponse(w, utils.Error(err.Error()), http.StatusUnauthorized)
 	case err != nil:
 		utils.WriteResponse(w, utils.Error(err.Error()), http.StatusInternalServerError)

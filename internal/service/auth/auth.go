@@ -25,7 +25,7 @@ func NewAuthService(userRepo storage.UserRepositoryInterface) *Service {
 	return &Service{userRepo: userRepo}
 }
 
-func (s *Service) Register(ctx context.Context, request dto.PostRegisterJSONRequestBody) (*models.User, error) {
+func (s *Service) Register(ctx context.Context, request dto.PostRegisterJSONRequestBody) (*dto.User, error) {
 	_, err := s.userRepo.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
@@ -36,6 +36,10 @@ func (s *Service) Register(ctx context.Context, request dto.PostRegisterJSONRequ
 			log.Fatalf("Error while rolling back transaction: %s", err)
 		}
 	}()
+
+	if request.Email == "" || request.Password == "" {
+		return nil, models.ErrEmptyEmailOrPassword
+	}
 
 	if !isValidRole(dto.UserRole(request.Role)) {
 		return nil, models.ErrIncorrectUserRole
@@ -60,7 +64,13 @@ func (s *Service) Register(ctx context.Context, request dto.PostRegisterJSONRequ
 		return nil, err
 	}
 
-	return user, nil
+	userDto := &dto.User{
+		Id:    &user.ID,
+		Email: user.Email,
+		Role:  user.Role,
+	}
+
+	return userDto, nil
 }
 
 func hashPassword(password string) (string, error) {
@@ -86,6 +96,10 @@ func (s *Service) DummyLogin(request dto.PostDummyLoginJSONRequestBody) (*dto.To
 }
 
 func (s *Service) Login(ctx context.Context, request dto.PostLoginJSONRequestBody) (*dto.Token, error) {
+	if request.Email == "" || request.Password == "" {
+		return nil, models.ErrEmptyEmailOrPassword
+	}
+
 	user, err := s.userRepo.GetUserByEmail(ctx, request.Email)
 	if err != nil {
 		return nil, models.ErrUserNotFound
